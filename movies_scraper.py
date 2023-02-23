@@ -32,9 +32,13 @@ def get_movie(query):
         links = movie_page_link.find_all("a", {'rel': 'noopener', 'data-wpel-link': 'internal'})
         final_links = {}
         for i in links:
-            url = f"https://shorturllink.in/api?api={api_key}&url={i['href']}"
-            response = requests.get(url)
-            link = response.json()
-            final_links[f"{i.text}"] = link['shortenedUrl']
+            url = f"https://urlshortx.com/api?api={api_key}&url={i['href']}"
+            try:
+                response = requests.get(url, timeout=30)
+                link = response.json()
+                final_links[f"{i.text}"] = link['shortenedUrl']
+            except requests.exceptions.RequestException as e:
+                print(f"Error occurred while requesting URL shortener API: {e}")
+                final_links[f"{i.text}"] = "Error: Unable to retrieve shortened URL"
         movie_details["links"] = final_links
     return movie_details
